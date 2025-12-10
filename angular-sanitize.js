@@ -819,8 +819,11 @@ angular.module('ngSanitize', [])
    </example>
  */
 angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
+  // CVE-2025-4690: Fixed ReDoS vulnerability by using unrolled loop pattern
+  // Original pattern \S*[^\s.;,(){}<>"\u201d\u2019] had overlapping character classes causing
+  // exponential backtracking. The fix uses non-overlapping classes to eliminate backtracking.
   var LINKY_URL_REGEXP =
-        /((s?ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)\S*[^\s.;,(){}<>"\u201d\u2019]/i,
+        /((s?ftp|https?):\/\/|(www\.)|(mailto:)?[A-Za-z0-9._%+-]+@)[.;,(){}<>"\u201d\u2019]*[^\s.;,(){}<>"\u201d\u2019]+(?:[.;,(){}<>"\u201d\u2019]+[^\s.;,(){}<>"\u201d\u2019]+)*/i,
       MAILTO_REGEXP = /^mailto:/i;
 
   var linkyMinErr = angular.$$minErr('linky');
