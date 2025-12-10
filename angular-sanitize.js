@@ -603,7 +603,11 @@ function $SanitizeProvider() {
           out(tag);
           forEach(attrs, function(value, key) {
             var lkey = lowercase(key);
-            var isImage = (tag === 'img' && lkey === 'src') || (lkey === 'background');
+            // CVE-2025-2336: Extended isImage check to include SVG <image> elements
+            // to ensure xlink:href is validated against image source rules
+            var isImage = (tag === 'img' && lkey === 'src') ||
+                          (tag === 'image' && lkey === 'xlink:href') ||
+                          (lkey === 'background');
             if (validAttrs[lkey] === true &&
               (uriAttrs[lkey] !== true || uriValidator(value, isImage))) {
               out(' ');
